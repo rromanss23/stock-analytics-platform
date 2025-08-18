@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Homepage from './components/Homepage';
-//import StocksPage from './pages/StocksPage';
+import StocksPage from './pages/StocksPage';
 import Layout from './components/Layout';
 //import './App.css';
 
@@ -22,7 +22,7 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<Homepage />} />
-            {/* <Route path="/stocks" element={<StocksPage />} /> */}
+            <Route path="/stocks" element={<StocksPage />} />
           </Routes>
         </Layout>
       </Router>
