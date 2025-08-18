@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev": "npm run dev:frontend",
     "dev:frontend": "npm run dev --workspace=packages/frontend",
     "dev:backend": "npm run dev --workspace=packages/backend",
     "build": "npm run build --workspaces",
@@ -17,17 +17,11 @@
     "prepare": "husky install"
   },
   "lint-staged": {
-    "packages/frontend/src/**/*.{ts,tsx}": [
-      "eslint --fix",
-      "git add"
-    ],
-    "packages/shared/src/**/*.{ts}": [
-      "eslint --fix",
-      "git add"
+    "*.{ts,tsx}": [
+      "eslint --fix"
     ],
     "*.{json,md}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   },
   "devDependencies": {
