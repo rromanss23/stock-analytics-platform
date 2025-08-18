@@ -13,12 +13,28 @@
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
     "lint": "npm run lint --workspaces",
-    "type-check": "npm run type-check --workspaces"
+    "type-check": "npm run type-check --workspaces",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "packages/frontend/src/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "git add"
+    ],
+    "packages/shared/src/**/*.{ts}": [
+      "eslint --fix",
+      "git add"
+    ],
+    "*.{json,md}": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
     "husky": "^8.0.3",
-    "lint-staged": "^15.2.0"
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.6.2"
   },
   "engines": {
     "node": ">=18.0.0",
