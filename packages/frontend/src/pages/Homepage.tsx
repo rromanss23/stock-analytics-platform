@@ -1,6 +1,6 @@
 import React from 'react';
-import HeroSection from './homepage/HeroSection';
-import NewsSummary from './homepage/NewsSummary';
+import HeroSection from '../components/homepage/HeroSection';
+import NewsSummary from '../components/homepage/NewsSummary';
 import MicroCharts from '../components/homepage/MicroCharts';
 
 const Homepage: React.FC = () => {

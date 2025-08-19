@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import Homepage from './components/Homepage';
+import Homepage from './pages/Homepage';
 import StocksPage from './pages/StocksPage';
 import Layout from './components/Layout';
-//import './App.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,6 +15,12 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
