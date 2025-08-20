@@ -90,11 +90,16 @@ export const stockConfig: AssetConfig<Stock, StockIndex> = {
       )
     },
     {
-      field: 'indexWeight',
-      headerName: 'Index Weight',
-      width: 120,
-      align: 'right',
-      headerAlign: 'right'
+    field: 'indexWeight',
+    headerName: 'Index Weight',
+    width: 120,
+    align: 'center',
+    headerAlign: 'center',
+    renderCell: (params) => (
+        <Typography variant="body2" fontWeight={500}>
+        {params.value}
+        </Typography>
+    )
     },
     {
       field: 'currentPrice',
@@ -287,14 +292,24 @@ export const commodityConfig: AssetConfig<Commodity, CommodityIndex> = {
       headerName: 'Unit',
       width: 80,
       align: 'center',
-      headerAlign: 'center'
+      headerAlign: 'center',
+      renderCell: (params)  => (
+        <Typography variant="body2" fontWeight={500}>
+          {params.value}
+        </Typography>
+      )
     },
     {
       field: 'exchange',
       headerName: 'Exchange',
       width: 100,
       align: 'center',
-      headerAlign: 'center'
+      headerAlign: 'center',
+      renderCell: (params) => (
+        <Typography variant="body2" fontWeight={600}>
+          {params.value}
+        </Typography>
+      )
     },
     {
       field: 'currentPrice',
