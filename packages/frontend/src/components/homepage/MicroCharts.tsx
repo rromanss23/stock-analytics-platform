@@ -1,53 +1,205 @@
-import React from 'react';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import React from 'react'
+import {
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Chip,
+  Avatar
+} from '@mui/material'
+import {
+  TrendingUp,
+  TrendingDown,
+  ShowChart
+} from '@mui/icons-material'
 
-const MicroCharts: React.FC = () => {
-  const mockStocks = [
-    { symbol: 'AAPL', price: 185.25, change: 2.45, changePercent: 1.34 },
-    { symbol: 'GOOGL', price: 142.80, change: -1.20, changePercent: -0.83 },
-    { symbol: 'MSFT', price: 378.91, change: 5.67, changePercent: 1.52 },
-    { symbol: 'TSLA', price: 248.50, change: -3.21, changePercent: -1.27 },
-  ];
+// Mock stock data
+const mockStocks = [
+  {
+    symbol: 'AAPL',
+    name: 'Apple Inc.',
+    price: 175.43,
+    change: 2.34,
+    changePercent: 1.35,
+    trend: 'up' as const
+  },
+  {
+    symbol: 'GOOGL',
+    name: 'Alphabet Inc.',
+    price: 141.80,
+    change: -1.25,
+    changePercent: -0.87,
+    trend: 'down' as const
+  },
+  {
+    symbol: 'MSFT',
+    name: 'Microsoft Corp.',
+    price: 378.85,
+    change: 5.67,
+    changePercent: 1.52,
+    trend: 'up' as const
+  },
+  {
+    symbol: 'TSLA',
+    name: 'Tesla Inc.',
+    price: 248.50,
+    change: -8.32,
+    changePercent: -3.24,
+    trend: 'down' as const
+  },
+  {
+    symbol: 'AMZN',
+    name: 'Amazon.com Inc.',
+    price: 145.12,
+    change: 0.98,
+    changePercent: 0.68,
+    trend: 'up' as const
+  }
+]
 
+const getTrendIcon = (trend: string) => {
+  return trend === 'up' ? (
+    <TrendingUp fontSize="small" color="success" />
+  ) : (
+    <TrendingDown fontSize="small" color="error" />
+  )
+}
+
+const getTrendColor = (trend: string) => {
+  return trend === 'up' ? 'success' : 'error'
+}
+
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2
+  }).format(value)
+}
+
+const formatChange = (change: number, percent: number) => {
+  const sign = change >= 0 ? '+' : ''
+  return `${sign}${change.toFixed(2)} (${sign}${percent.toFixed(2)}%)`
+}
+
+export function MicroCharts() {
   return (
-    <div className="card p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">
-        Followed Assets
-      </h2>
-      
-      <div className="space-y-4">
-        {mockStocks.map((stock) => (
-          <div key={stock.symbol} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <div>
-              <div className="font-semibold text-gray-900">{stock.symbol}</div>
-              <div className="text-sm text-gray-600">${stock.price}</div>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              {stock.change >= 0 ? (
-                <TrendingUp className="w-4 h-4 text-success-500" />
-              ) : (
-                <TrendingDown className="w-4 h-4 text-danger-500" />
-              )}
-              
-              <div className="text-right">
-                <div className={`text-sm font-medium ${
-                  stock.change >= 0 ? 'text-success-600' : 'text-danger-600'
-                }`}>
-                  {stock.change >= 0 ? '+' : ''}{stock.change}
-                </div>
-                <div className={`text-xs ${
-                  stock.change >= 0 ? 'text-success-500' : 'text-danger-500'
-                }`}>
-                  {stock.change >= 0 ? '+' : ''}{stock.changePercent}%
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+    <Card elevation={1}>
+      <CardContent>
+        {/* Header */}
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+          <ShowChart color="primary" sx={{ mr: 1 }} />
+          <Typography variant="h6" component="h2" fontWeight={600}>
+            Followed Assets
+          </Typography>
+        </Box>
 
-export default MicroCharts;
+        {/* Stock Table */}
+        <TableContainer>
+          <Table size="small" aria-label="followed stocks table">
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontWeight: 600 }}>Symbol</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Company</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 600 }}>Price</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 600 }}>Change</TableCell>
+                <TableCell align="center" sx={{ fontWeight: 600 }}>Trend</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {mockStocks.map((stock) => (
+                <TableRow
+                  key={stock.symbol}
+                  hover
+                  sx={{ 
+                    cursor: 'pointer',
+                    '&:hover': {
+                      backgroundColor: 'action.hover'
+                    }
+                  }}
+                >
+                  {/* Symbol */}
+                  <TableCell>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Avatar
+                        sx={{
+                          width: 32,
+                          height: 32,
+                          mr: 1,
+                          bgcolor: 'primary.main',
+                          fontSize: '0.75rem',
+                          fontWeight: 600
+                        }}
+                      >
+                        {stock.symbol.charAt(0)}
+                      </Avatar>
+                      <Typography variant="body2" fontWeight={600}>
+                        {stock.symbol}
+                      </Typography>
+                    </Box>
+                  </TableCell>
+
+                  {/* Company Name */}
+                  <TableCell>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        maxWidth: { xs: 120, sm: 200 }
+                      }}
+                    >
+                      {stock.name}
+                    </Typography>
+                  </TableCell>
+
+                  {/* Price */}
+                  <TableCell align="right">
+                    <Typography variant="body2" fontWeight={600}>
+                      {formatCurrency(stock.price)}
+                    </Typography>
+                  </TableCell>
+
+                  {/* Change */}
+                  <TableCell align="right">
+                    <Chip
+                      label={formatChange(stock.change, stock.changePercent)}
+                      size="small"
+                      color={getTrendColor(stock.trend) as any}
+                      variant="outlined"
+                      sx={{
+                        fontSize: '0.75rem',
+                        fontWeight: 500,
+                        minWidth: 100
+                      }}
+                    />
+                  </TableCell>
+
+                  {/* Trend */}
+                  <TableCell align="center">
+                    {getTrendIcon(stock.trend)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        {/* Footer */}
+        <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Typography variant="caption" color="text.secondary">
+            Real-time data • Last updated: {new Date().toLocaleTimeString()}
+          </Typography>
+        </Box>
+      </CardContent>
+    </Card>
+  )
+}

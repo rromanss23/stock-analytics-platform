@@ -1,18 +1,28 @@
-import React from 'react';
-import HeroSection from '../components/homepage/HeroSection';
-import NewsSummary from '../components/homepage/NewsSummary';
-import MicroCharts from '../components/homepage/MicroCharts';
+import React from 'react'
+import { Box, Stack } from '@mui/material'
+import { HeroSection } from '../components/homepage/HeroSection'
+import { NewsSummary } from '../components/homepage/NewsSummary'
+import { MicroCharts } from '../components/homepage/MicroCharts'
 
-const Homepage: React.FC = () => {
+export function Homepage() {
   return (
-    <div className="space-y-8">
-      <HeroSection />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <NewsSummary />
-        <MicroCharts />
-      </div>
-    </div>
-  );
-};
+    <Box sx={{ width: '100%' }}>
+      <Stack spacing={3}>
+        {/* Hero Section - Full Width */}
+        <HeroSection />
 
-export default Homepage;
+        {/* Content Grid - News and Charts */}
+        <Box 
+          sx={{ 
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' },
+            gap: 3
+          }}
+        >
+          <NewsSummary />
+          <MicroCharts />
+        </Box>
+      </Stack>
+    </Box>
+  )
+}
