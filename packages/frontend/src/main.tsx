@@ -18,8 +18,8 @@ const theme = createTheme({
       main: '#ef4444', // Keep your red
     },
     background: {
-      default: '#f5f5f5',
-      paper: '#ffffff',
+      default: '#302f2fff',
+      paper: '#393737ff',
     },
   },
   typography: {
