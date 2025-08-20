@@ -1,4 +1,3 @@
-import React from 'react'
 import { Box, Stack } from '@mui/material'
 import { HeroSection } from '../components/homepage/HeroSection'
 import { NewsSummary } from '../components/homepage/NewsSummary'
