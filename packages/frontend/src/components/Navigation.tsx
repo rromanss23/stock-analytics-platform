@@ -39,7 +39,7 @@ export function Navigation() {
             letterSpacing: '0.5px'
           }}
         >
-          StockAnalytics
+          AssetAnalytics
         </Typography>
 
         {/* Navigation Links */}

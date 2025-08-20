@@ -51,7 +51,7 @@ export function HeroSection() {
           mb: 2
         }}
       >
-        Smart Stock Analytics
+        Smart Asset Analytics
       </Typography>
 
       {/* Subtitle */}
@@ -92,7 +92,7 @@ export function HeroSection() {
             minWidth: { xs: '100%', sm: 200 }
           }}
         >
-          View Stocks
+          View Assets
         </Button>
 
         <Button
