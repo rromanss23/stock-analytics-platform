@@ -1,12 +1,14 @@
+import { useNavigate } from 'react-router-dom';
 import { AssetPage } from '../components/AssetPage';
 import { cryptoConfig } from '../config/assets';
 import { mockCryptoData } from '../data/mockData';
 import { Crypto, CryptoIndex } from '@/types/asset';
 
 export function CryptoPage() {
+  const navigate = useNavigate();
+
   const handleRowClick = (crypto: Crypto) => {
-    // TODO: Navigate to detailed crypto view
-    console.log('Selected crypto:', crypto.symbol);
+    navigate(`/crypto/${crypto.symbol}`);
   };
 
   const handleIndexChange = (index: CryptoIndex) => {
