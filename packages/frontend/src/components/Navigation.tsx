@@ -12,6 +12,8 @@ import {
   ShowChart as StocksIcon,
   CurrencyBitcoin as CryptoIcon
 } from '@mui/icons-material'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSeedling } from '@fortawesome/free-solid-svg-icons'
 import { Link, useLocation } from 'react-router-dom'
 
 export function Navigation() {
@@ -97,7 +99,7 @@ export function Navigation() {
             color="inherit" 
             component={Link} 
             to="/commodities"
-            startIcon={<CryptoIcon />}
+            startIcon={<FontAwesomeIcon icon={faSeedling} />}
             variant={location.pathname === '/commodities' ? 'outlined' : 'text'}
             sx={{ 
               borderColor: location.pathname === '/commodities' ? 'rgba(255,255,255,0.5)' : 'transparent',
