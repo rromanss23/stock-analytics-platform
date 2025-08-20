@@ -9,7 +9,8 @@ import {
 import { 
   TrendingUp,
   Home as HomeIcon,
-  ShowChart as StocksIcon
+  ShowChart as StocksIcon,
+  CurrencyBitcoin as CryptoIcon
 } from '@mui/icons-material'
 import { Link, useLocation } from 'react-router-dom'
 
@@ -74,6 +75,38 @@ export function Navigation() {
             }}
           >
             Stocks
+          </Button>
+
+          <Button 
+            color="inherit" 
+            component={Link} 
+            to="/crypto"
+            startIcon={<CryptoIcon />}
+            variant={location.pathname === '/crypto' ? 'outlined' : 'text'}
+            sx={{ 
+              borderColor: location.pathname === '/crypto' ? 'rgba(255,255,255,0.5)' : 'transparent',
+              '&:hover': {
+                backgroundColor: 'rgba(255,255,255,0.1)'
+              }
+            }}
+          >
+            Crypto
+          </Button>
+
+          <Button 
+            color="inherit" 
+            component={Link} 
+            to="/commodities"
+            startIcon={<CryptoIcon />}
+            variant={location.pathname === '/commodities' ? 'outlined' : 'text'}
+            sx={{ 
+              borderColor: location.pathname === '/commodities' ? 'rgba(255,255,255,0.5)' : 'transparent',
+              '&:hover': {
+                backgroundColor: 'rgba(255,255,255,0.1)'
+              }
+            }}
+          >
+            Commodities
           </Button>
         </Box>
       </Toolbar>
