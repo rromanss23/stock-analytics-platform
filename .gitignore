@@ -37,6 +37,9 @@ pids
 *.seed
 *.pid.lock
 
+# Data files
+packages/data-pipeline/data/
+
 # Coverage directory used by tools like istanbul
 coverage/
 

@@ -27,6 +27,7 @@ dependencies = [
     "click>=8.1.0", # For CLI commands
     "rich>=13.0.0", # Beautiful console output
     "pydantic>=2.4.0", # Data validation
+    "polars>=1.32.3",
 ]
 
 [project.optional-dependencies]
