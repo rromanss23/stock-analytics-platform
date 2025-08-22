@@ -40,6 +40,9 @@ pids
 # Data files
 packages/data-pipeline/data/
 
+# Playground files
+packages/data-pipeline/playground/explore_data.ipynb
+
 # Coverage directory used by tools like istanbul
 coverage/
 

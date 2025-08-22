@@ -604,7 +604,7 @@ def main():
     }
     
     # Fetch data using the pipeline function
-    data = fetch_and_validate_data(asset_symbols, period="5d", interval="1d")
+    data = fetch_and_validate_data(asset_symbols, period="max", interval="1h")
     
     # Fetch asset info
     asset_info = fetch_asset_info(list(data.keys()))
