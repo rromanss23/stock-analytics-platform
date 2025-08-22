@@ -76,7 +76,7 @@ DEFAULT_CONFIG = {
 
 
 def fetch_historical_data(
-    symbols: Union[str, List[str]],
+    asset_symbols: Dict[str, List[str]],
     period: str = "1y",
     interval: str = "1d",
     start: Optional[str] = None,
@@ -84,10 +84,11 @@ def fetch_historical_data(
     config: Optional[Dict] = None
 ) -> Dict[str, pl.DataFrame]:
     """
-    Fetch historical data for symbols.
+    Fetch historical data for symbols organized by asset type.
     
     Args:
-        symbols: Single symbol or list of symbols
+        asset_symbols: Dictionary categorizing symbols by asset type
+                      e.g., {'stocks': ['AAPL', 'MSFT'], 'crypto': ['BTC-USD']}
         period: Data period (1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max)
         interval: Data interval (1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo)
         start: Start date (YYYY-MM-DD)
@@ -95,39 +96,42 @@ def fetch_historical_data(
         config: Configuration overrides
         
     Returns:
-        Dictionary mapping symbols to DataFrames with historical data
+        Dictionary mapping symbols to Polars DataFrames with historical data
     """
     cfg = {**DEFAULT_CONFIG, **(config or {})}
     
-    if isinstance(symbols, str):
-        symbols = [symbols]
-    
     results = {}
     
-    for symbol in symbols:
-        try:
-            logger.info(f"Fetching historical data for {symbol}")
-            data = _fetch_single_symbol_with_retry(symbol, period, interval, start, end, cfg)
-            
-            if data is not None and not data.is_empty():
-                if cfg['validate_data']:
-                    data = validate_and_clean_data(data, symbol)
+    # Process each asset type and its symbols
+    for asset_type, symbols in asset_symbols.items():
+        logger.info(f"Processing {asset_type} with {len(symbols)} symbols")
+        
+        for symbol in symbols:
+            try:
+                logger.info(f"Fetching historical data for {symbol} ({asset_type})")
+                data = _fetch_single_symbol_with_retry(symbol, period, interval, start, end, cfg)
                 
-                if not data.is_empty():
-                    # Save to parquet files by year if enabled
-                    if cfg['save_to_parquet']:
-                        save_data_to_parquet(data, symbol, cfg['output_dir'])
+                if data is not None and not data.is_empty():
+                    if cfg['validate_data']:
+                        data = validate_and_clean_data(data, symbol)
                     
-                    results[symbol] = data
-                    logger.info(f"Successfully fetched {len(data)} records for {symbol}")
+                    if not data.is_empty():
+                        # Save to parquet files by year if enabled
+                        if cfg['save_to_parquet']:
+                            # Create asset-type specific output directory
+                            output_dir = f"{cfg['output_dir']}/{asset_type}"
+                            save_data_to_parquet(data, symbol, output_dir)
+
+                        results[symbol] = data
+                        logger.info(f"Successfully fetched {len(data)} records for {symbol}")
+                    else:
+                        logger.warning(f"No valid data after cleaning for {symbol}")
                 else:
-                    logger.warning(f"No valid data after cleaning for {symbol}")
-            else:
-                logger.warning(f"No data returned for {symbol}")
-                
-        except Exception as e:
-            logger.error(f"Failed to fetch data for {symbol}: {str(e)}")
-            continue
+                    logger.warning(f"No data returned for {symbol}")
+                    
+            except Exception as e:
+                logger.error(f"Failed to fetch data for {symbol}: {str(e)}")
+                continue
             
     return results
 
@@ -444,7 +448,7 @@ def save_data_to_parquet(data: pl.DataFrame, symbol: str, output_dir: str) -> No
     Args:
         data: Polars DataFrame with historical data
         symbol: Stock symbol
-        output_dir: Base directory for saving files
+        output_dir: Base directory for saving files (includes asset type)
     """
     try:
         # Create output directory
@@ -487,14 +491,16 @@ def save_data_to_parquet(data: pl.DataFrame, symbol: str, output_dir: str) -> No
 
 def load_data_from_parquet(
     symbol: str, 
+    asset_type: str,
     year: Optional[int] = None,
     output_dir: str = "data/raw"
 ) -> Optional[pl.DataFrame]:
     """
-    Load data from parquet files.
+    Load data from parquet files organized by asset type.
     
     Args:
         symbol: Stock symbol
+        asset_type: Asset type (stocks, crypto, commodities, etc.)
         year: Specific year to load (if None, loads all years)
         output_dir: Base directory where files are saved
         
@@ -502,10 +508,10 @@ def load_data_from_parquet(
         Polars DataFrame with historical data or None if not found
     """
     try:
-        base_path = Path(output_dir) / symbol
+        base_path = Path(output_dir) / asset_type / symbol
         
         if not base_path.exists():
-            logger.warning(f"No data directory found for {symbol}")
+            logger.warning(f"No data directory found for {symbol} in {asset_type}")
             return None
         
         if year:
@@ -535,9 +541,8 @@ def load_data_from_parquet(
         return None
 
 
-# Pipeline Composition Functions
 def fetch_and_validate_data(
-    symbols: Union[str, List[str]],
+    asset_symbols: Dict[str, List[str]],
     period: str = "1y",
     interval: str = "1d"
 ) -> Dict[str, pl.DataFrame]:
@@ -545,13 +550,24 @@ def fetch_and_validate_data(
     Complete pipeline: fetch + validate symbols, then fetch data.
     
     This is the main function for CLI usage.
+    
+    Args:
+        asset_symbols: Dictionary categorizing symbols by asset type
+                      e.g., {'stocks': ['AAPL', 'MSFT'], 'crypto': ['BTC-USD']}
+        period: Data period
+        interval: Data interval
+        
+    Returns:
+        Dictionary mapping symbols to Polars DataFrames
     """
-    if isinstance(symbols, str):
-        symbols = [symbols]
-    
+    # Flatten all symbols for validation
+    all_symbols = []
+    for symbols in asset_symbols.values():
+        all_symbols.extend(symbols)
+
     # Validate symbols first
-    valid_symbols, invalid_symbols = validate_symbols(symbols)
-    
+    valid_symbols, invalid_symbols = validate_symbols(all_symbols)
+
     if invalid_symbols:
         logger.warning(f"Invalid symbols (skipping): {invalid_symbols}")
     
@@ -559,9 +575,16 @@ def fetch_and_validate_data(
         logger.error("No valid symbols provided")
         return {}
     
+    # Filter asset_symbols to only include valid symbols
+    filtered_asset_symbols = {}
+    for asset_type, symbols in asset_symbols.items():
+        valid_symbols_for_type = [s for s in symbols if s in valid_symbols]
+        if valid_symbols_for_type:
+            filtered_asset_symbols[asset_type] = valid_symbols_for_type
+    
     # Fetch historical data
     historical_data = fetch_historical_data(
-        symbols=valid_symbols,
+        asset_symbols=filtered_asset_symbols,
         period=period,
         interval=interval
     )
@@ -573,21 +596,15 @@ def main():
     """Example usage for CLI integration."""
     logging.basicConfig(level=logging.INFO)
     
-    # Example symbols
-    # TODO: move to config
+    # Example symbols organized by asset type
     asset_symbols = {
         'stocks': ['AAPL', 'MSFT', 'GOOGL'],
         'crypto': ['BTC-USD', 'ETH-USD', 'XRP-USD'],
         'commodities': ['GC=F', 'CL=F', 'ZC=F'],
     }
-    symbols = [
-        'AAPL', 'MSFT', 'GOOGL',  # stocks
-        'BTC-USD', 'ETH-USD', 'XRP-USD',  # crypto
-        'GC=F', 'CL=F', 'ZC=F',  # commodities
-        ]
     
     # Fetch data using the pipeline function
-    data = fetch_and_validate_data(symbols, period="5y", interval="1d")
+    data = fetch_and_validate_data(asset_symbols, period="5d", interval="1d")
     
     # Fetch asset info
     asset_info = fetch_asset_info(list(data.keys()))
@@ -599,8 +616,25 @@ def main():
         print(f"\n{symbol} ({info.name}):")
         print(f"  Asset Type: {info.asset_type}")
         print(f"  Records: {len(df)}")
-        print(f"  Date Range: {df['timestamp'].min()} to {df['timestamp'].max()}")
-        print(f"  Latest Close: ${df['close'].last():.2f}") 
+        
+        # Get timestamp range using Polars
+        timestamp_min = df.select(pl.col('timestamp').min()).item()
+        timestamp_max = df.select(pl.col('timestamp').max()).item()
+        latest_close = df.select(pl.col('close').last()).item()
+        
+        print(f"  Date Range: {timestamp_min} to {timestamp_max}")
+        print(f"  Latest Close: ${latest_close:.2f}")
+        
+        # Show sample of data
+        print(f"  Sample data:")
+        print(df.head(3))
+        
+        # Test loading from parquet (determine asset type from symbol)
+        asset_type = determine_asset_type(symbol, {})
+        print(f"\n  Testing parquet load for {symbol} ({asset_type}):")
+        loaded_data = load_data_from_parquet(symbol, asset_type, output_dir="data/raw")
+        if loaded_data is not None:
+            print(f"  Successfully loaded {len(loaded_data)} records from parquet files")
 
 
 if __name__ == "__main__":
