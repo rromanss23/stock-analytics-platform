@@ -3,24 +3,15 @@ import logging
 from typing import Dict, List, Optional, Union
 import yfinance as yf
 import polars as pl
-from data_pipeline.models import AssetInfo
-from data_pipeline.validators.validate_data import validate_and_clean_data
-from data_pipeline.storage.parquet_handler import save_data_to_parquet
-from data_pipeline.fetchers.validate_symbol import validate_symbols
-from data_pipeline.fetchers.utils import determine_asset_type
+from models.asset_info import AssetInfo
+from utils.validate_data import validate_and_clean_data
+from utils.parquet_utils import save_data_to_parquet
+from utils.validate_symbol import validate_symbols
+from utils.utils import determine_asset_type
+from config.config import DEFAULT_CONFIG
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# Configuration
-DEFAULT_CONFIG = {
-    'max_retries': 3,
-    'retry_delay': 1.0,
-    'timeout': 30,
-    'validate_data': True,
-    'output_dir': 'data/raw',  # Directory to save parquet files
-    'save_to_parquet': True
-}
 
 
 def fetch_and_validate_data(
